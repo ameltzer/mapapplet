@@ -184,7 +184,7 @@ public class ElectionMapRenderer extends Renderer
 			this.buildBiography(g, height, width);
 			g.setFont(new Font("Times New Roman", Font.BOLD, 12));
 			g.setColor(Color.black);
-			g.drawString("2008", width-700, height-100);
+			g.drawString(Integer.toString(dataModel.getCurrentYear()), width-700, height-70);
 		}
 	}	
 	/**

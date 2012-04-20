@@ -17,6 +17,8 @@ import map_framework.Map;
 import election_map_applet.events.ElectionMapKeyHandler;
 import election_map_applet.events.ElectionMapMouseOverShapeHandler;
 import election_map_applet.events.ElectionMapWindowHandler;
+import election_map_applet.events.ResetEventHandler;
+import election_map_applet.events.SliderEvent;
 
 /**
  * This application allows the user to view national and individual
@@ -156,6 +158,10 @@ public class ElectionMapViewer extends Map
 		// THIS WILL HANDLE MOUSE CLICKS ON THE WINDOW'S X
 		ElectionMapWindowHandler emwh = new ElectionMapWindowHandler(this);
 		addWindowListener(emwh);
+		SliderEvent se = new SliderEvent(this.dataModel);
+		slider.addChangeListener(se);
+		ResetEventHandler reh = new ResetEventHandler(this.dataModel);
+		reset.addMouseListener(reh);
 	}
 	
 	/**

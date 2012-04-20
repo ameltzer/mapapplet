@@ -81,9 +81,12 @@ public class ElectionMapDataModel extends DataModel
 		sections = new DBFTable();
 		demEv=0;
 		repEv=0;
+		currentYear=2008;
 	}
 	public int getDemEv(){ return this.demEv;}
 	public int getRepEv(){ return this.repEv;}
+	public int getCurrentYear(){ return this.currentYear; }
+	public void setCurrentYear(int year){ this.currentYear = year;}
 	public void setViewWidth(int width){
 		viewWidth=width;
 	}
