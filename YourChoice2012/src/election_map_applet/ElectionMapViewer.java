@@ -6,8 +6,12 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.swing.*;
+
+import dbf_framework.DBFRecord;
+import dbf_framework.DBFTable;
 
 import map_framework.Map;
 
@@ -193,8 +197,15 @@ public class ElectionMapViewer extends Map
 			//as long as you are in the USA map you can click to zoom
 			if(this.dataModel.getCurrentMapAbbr().equals("USA"))
 			{
-				dataModel.getRenderer().zoomHandler((String)dataModel.getTable().getTree().
-						get(dataModel.getRenderer().getPolyLocation()).getData(1));
+				DBFTable table= dataModel.getTable();
+				ArrayList list=table.getTree();
+				ElectionMapRenderer renderer = dataModel.getRenderer();
+				int location = renderer.getPolyLocation();
+				DBFRecord record =null;
+				if(location>-1)
+					record = (DBFRecord)list.get(location);
+				String zoom =(String)record.getData(1);
+				dataModel.getRenderer().zoomHandler(zoom);
 			}
 		}
 		//we don't want any of these

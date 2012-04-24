@@ -6,6 +6,8 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 import shp_framework.geometry.SHPPolyType;
 import shp_framework.geometry.SHPPolygon;
@@ -58,10 +60,10 @@ public class SHPDataLoader
 	 * @return SHPMap
 	 * @throws IOException
 	 */	
-	public SHPMap loadShapefile(File shapeFile) throws IOException
+	public SHPMap loadShapefile(URL shapeFileURL) throws IOException
 	{
-		SHPData data = loadShapefileData(shapeFile);
-		SHPMap shapefile = new SHPMap(shapeFile.getName(), data);
+		SHPData data = loadShapefileData(shapeFileURL);
+		SHPMap shapefile = new SHPMap((new File(shapeFileURL.getPath())).getName(), data);
 		return shapefile;
 	}
 	
@@ -73,30 +75,30 @@ public class SHPDataLoader
 	 * @return SHPData
 	 * @throws IOException
 	 */
-	private SHPData loadShapefileData(File shapeFile) throws IOException
+	private SHPData loadShapefileData(URL shapeFileURL) throws IOException
 	{
 		// THIS IS WHERE WE'LL LOAD THE DATA INTO
 		SHPData shapefileData = new SHPData();
 
+		
 		// THIS IS THE FILE WE'LL READ FROM
-		
-		FileInputStream fis = new FileInputStream(shapeFile);
-		
+		InputStream in = shapeFileURL.openStream();
 		// LET'S QUICKLY LOAD ALL THE BYTES TO
 		// SPEED EVERYTHING UP
-		byte[] bytes = new byte[Long.valueOf(shapeFile.length()).intValue()];
+		//9946852 is the largest number that will be used
+		//222344 is the number used for US map
+		byte[] bytes = new byte[9946852];
 		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
 
-		BufferedInputStream bis = new BufferedInputStream(fis);
+		BufferedInputStream bis = new BufferedInputStream(in);
 		bis.read(bytes);
 		bis.close();
 		
 		DataInputStream dis;
-		if (shapeFile.length() <= Integer.MAX_VALUE)
+		if (9946852 <= Integer.MAX_VALUE)
 			dis = new DataInputStream(bais);
 		else
-			dis = new DataInputStream(fis);
-			
+			dis = new DataInputStream(in);
 		// GET THE FILE CODE, IT SHOULD BE 0x0000270a
 		int fileCode = dis.readInt();
 		String hex = Integer.toHexString(fileCode);
@@ -140,12 +142,13 @@ public class SHPDataLoader
 		// IT TO BYTES TO FIGURE OUT WHEN WE'VE READ ALL DATA
 		fileLength = fileLength*2;
 		int byteCount = 100;
+		int z =0;
 		while(byteCount < fileLength)
 		{
 			int recordNumber = dis.readInt();
 			int recordLength = dis.readInt();
 			byteCount += 8;
-
+			z++;
 			SHPPolyType poly = extractPolyType(dis, shapeType);
 			shapefileData.addShape(poly);
 			poly.setRecordNumber(recordNumber);
@@ -201,21 +204,19 @@ public class SHPDataLoader
 		double[] pointsY = new double[numPoints];
 
 		// PARTS MAY BE COUNTRIES OR STATES OR COUNTIES
-		for (int i = 0; i < numParts; i++)
+		for (int i=0; i < numParts; i++)
 		{
 			// STARTING INDEX OF POINT FOR THIS PART
 			parts[i] = readLittleEndianInt(dis);
 			numBytes += 4;
 		}
-
 		// GET ALL THE POINTS FOR THIS PART (WHICH IS REALLY ITS OWN POLYGON)
-		for (int j = 0; j < (numPoints); j++)
+		for (int j=0; j < (numPoints); j++)
 		{
 			pointsX[j] = readLittleEndianDouble(dis);	
 			pointsY[j] = readLittleEndianDouble(dis);
 			numBytes += 16;
 		}
-
 		// WHICH IS IT? POLYLINE OR POLYGON?
 		if (shapeType == POLYLINE)
 			return new SHPPolyline(boundingBox, numBytes, numParts, numPoints, parts, pointsX, pointsY);

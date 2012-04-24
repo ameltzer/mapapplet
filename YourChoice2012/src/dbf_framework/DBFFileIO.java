@@ -1,13 +1,19 @@
 package dbf_framework;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.Iterator;
+
+import shp_framework.SHPData;
 /**
  * This class may be used for reading and writing data to and from
  * a .dbf file. Note that both processes must assume a similar DBF format.
@@ -259,16 +265,18 @@ public class DBFFileIO
 	 * the .dbf file. Likely problems are that the File is not in the
 	 * location specified or that it is spelled differently.
 	 */
-	public DBFTable loadDBF(File file) throws IOException
+	public DBFTable loadDBF(URL fileURL) throws IOException
 	{
 		// THIS IS THE TABLE WE'RE GOING TO FILL AND THEN RETURN
+		
+		
 		DBFTable mapTable = new DBFTable();
 
 		// WE ARE GOING TO READ RAW BYTE DATA
-		//InputStreamReader is = new InputStreamReader();
-		//DataInputStream dis = new DataInputStream(iss);
-		FileInputStream fis = new FileInputStream(file);
-		DataInputStream dis = new DataInputStream(fis);
+		
+		InputStream in = fileURL.openStream();
+		BufferedInputStream bis = new BufferedInputStream(in);
+		DataInputStream dis = new DataInputStream(bis);
 
 		// LOAD THE FIRST 32 BYTES OF THE HEADER
 		loadHeader(dis, mapTable);

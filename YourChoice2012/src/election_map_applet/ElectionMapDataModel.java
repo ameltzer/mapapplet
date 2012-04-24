@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -130,7 +131,7 @@ public class ElectionMapDataModel extends DataModel
 	 * Finally it returns the array of Strings for future use
 	 *
 	 */
-	public String[]  buildStrings(Candidate[] candidates, File file) throws IOException{
+	public String[]  buildStrings(Candidate[] candidates, URL file) throws IOException{
 		String[] votes = new String[candidates.length];
 		DBFRecord theRecord;
 		DBFTable currentTable = (new DBFFileIO().loadDBF(file));
@@ -200,7 +201,7 @@ public class ElectionMapDataModel extends DataModel
 	 * @return BigDecimal
 	 * @throws IOException
 	 */
-	public BigDecimal candidateVotes(int candidate, File file) throws IOException{
+	public BigDecimal candidateVotes(int candidate, URL file) throws IOException{
 		//start at 0
 		BigDecimal candidateVotes = BigDecimal.ZERO;
 		Iterator<DBFRecord> iterator = (new DBFFileIO()).loadDBF(file).getTree().iterator();
@@ -242,7 +243,7 @@ public class ElectionMapDataModel extends DataModel
 	 * @throws IOException
 	 *  take info from the file, finds the total number of votes and constructs the string
 	 */
-	public String totalVotesString(File file) throws IOException{
+	public String totalVotesString(URL file) throws IOException{
 		String votes ="";
 		//the table
 		DBFTable currentTable = (new DBFFileIO()).loadDBF(file);
@@ -265,7 +266,7 @@ public class ElectionMapDataModel extends DataModel
 	 * @throws IOException
 	 * A helper method for the method above this calculates the total votes.
 	 */
-	public BigDecimal totalVotes(File file, DBFRecord theRecord) throws IOException{
+	public BigDecimal totalVotes(URL file, DBFRecord theRecord) throws IOException{
 		BigDecimal totalVotes = BigDecimal.ZERO;
 		if(renderer.getPolyLocation()==-1){
 			Iterator<DBFRecord> record= (new DBFFileIO()).loadDBF(file).getTree().iterator();
@@ -303,7 +304,7 @@ public class ElectionMapDataModel extends DataModel
 	 * @param map:SHPMap
 	 * @param file:File
 	 */
-	public void colorSections(SHPMap map, File file){
+	public void colorSections(SHPMap map, URL file){
 		try {
 			//set sections to the relevant DBFTable
 			sections = (new DBFFileIO()).loadDBF(file);
@@ -323,13 +324,15 @@ public class ElectionMapDataModel extends DataModel
 	{
 		// INITIALIZE THE COLORS
 		Iterator<SHPShape> shapesIt = map.shapesIterator();
+		
 		for (int i=0; shapesIt.hasNext(); i++)
 		{
 			//get the next shape
 			SHPShape shape = shapesIt.next();
 			//find the number of fields
 			int numFields = this.sections.getNumFields();
-			DBFRecord record = this.sections.getTree().get(i);
+			ArrayList list = this.sections.getTree();
+			DBFRecord record = (DBFRecord)list.get(i);
 			//if Obama has more votes, set it to blue. if McCain has more votes, set it to Red. Otherwise, set it to yellow
 			if((Long)record.getData(numFields-3)>(Long)record.getData(numFields-2)){
 				demEv+=(Long)record.getData(numFields-3);

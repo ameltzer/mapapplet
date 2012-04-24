@@ -3,6 +3,7 @@ package election_map_applet.events;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import dbf_framework.DBFFileIO;
 
@@ -44,7 +45,7 @@ public class ElectionMapMouseOverShapeHandler implements MouseMotionListener
 		if(dataModel.getCurrentMapAbbr()=="USA" && dataModel.getRenderer().getPolyLocation()!=-1){
 			try {
 				int location = dataModel.getRenderer().getPolyLocation();
-				File currentFile = dataModel.getRenderer().getFile();
+				URL currentFile = dataModel.getRenderer().getURL();
 				dataModel.setCurrentStateAbbr((String)input.loadDBF(currentFile).getRecord(location).getData(1));
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -53,14 +54,15 @@ public class ElectionMapMouseOverShapeHandler implements MouseMotionListener
 		else if(dataModel.getCurrentMapAbbr()!="USA" && dataModel.getRenderer().getPolyLocation()!=-1){
 			try {
 				int location = dataModel.getRenderer().getPolyLocation();
-				File currentFile = dataModel.getRenderer().getFile();
+				URL currentFile = dataModel.getRenderer().getURL();
 				dataModel.setCurrentStateAbbr((String)input.loadDBF(currentFile).getRecord(location).getData(0));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		else if(dataModel.getCurrentMapAbbr()!="USA" && dataModel.getRenderer().getPolyLocation()==-1){
-			String nameFile= dataModel.getRenderer().getFile().getName();
+			URL nameURL= dataModel.getRenderer().getURL();
+			String nameFile = (new File(nameURL.getPath())).getName();
 			int i=0;
 			String name ="";
 			while(nameFile.charAt(i)!='.'){

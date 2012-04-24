@@ -37,8 +37,8 @@ public class ElectionMapRenderer extends Renderer
 {
 	// THE APP, WE NEED IT TO SHARE INFO 
 	private ElectionMapDataModel dataModel;
-	private File selection;
-	private File currentMap;
+	private URL selection;
+	private URL currentMap;
 	private String miniFlagLocation;
 	
 	// VIEWPORT DATA IS USED FOR ZOOMING IN AND OUT
@@ -71,10 +71,8 @@ public class ElectionMapRenderer extends Renderer
 		dataModel = initDataModel;
 		polyLocation=-1;
 		URL urlCtx = dataModel.getCode();
-		URL currentMapUrl = new URL(urlCtx, ElectionMapFileManager.USA_DBF);
-		String path = currentMapUrl.getPath();
-		selection = new File(path);
-		currentMap = new File(path);
+		selection = new URL(urlCtx, ElectionMapFileManager.USA_DBF);
+		currentMap = new URL(urlCtx, ElectionMapFileManager.USA_DBF);
 		// DEFAULT VIEWPORT STUFF, WHICH WILL BE CHANGED AS SOON
 		// AS A MAP IS LOADED
 		viewportCenterX = 0;
@@ -128,22 +126,22 @@ public class ElectionMapRenderer extends Renderer
 	 * 
 	 * @return File
 	 */
-	public File getCurrentMap(){ return this.currentMap;}
+	public URL getCurrentMap(){ return this.currentMap;}
 	/**
 	 * 
 	 * @return File
 	 */
-	public File getFile(){ return this.selection;}
+	public URL getURL(){ return this.selection;}
 	/**
 	 * 
 	 * @param file:File
 	 */
-	public void setFile(File file){ this.selection=file;		}
+	public void setURL(URL url){ this.selection=url;		}
 	/**
 	 * 
 	 * @param file:File
 	 */
-	public void setCurrentMap(File file){ this.currentMap =file;}
+	public void setCurrentMap(URL file){ this.currentMap =file;}
 	/*** RENDERING METHODS ***/
 
 	/**
@@ -490,7 +488,7 @@ public class ElectionMapRenderer extends Renderer
 		}
 		SHPMap map =null;
 		try {		
-			map = new SHPDataLoader().loadShapefile(new File(mapURL.getPath()));
+			map = new SHPDataLoader().loadShapefile(mapURL);
 			dataModel.setCurrentSHP(map);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -499,9 +497,15 @@ public class ElectionMapRenderer extends Renderer
 		double[] array2 = data.getMBR();
 		this.zoom((int)this.xCoordinateToPixel(array2[0]), (int)this.yCoordinateToPixel(array2[3]), 
 				(int)this.xCoordinateToPixel(array2[2]), (int)this.yCoordinateToPixel(array2[1]));
-		File currentFile = new File(location+".dbf");
-		dataModel.colorSections(map, currentFile);
-		dataModel.getRenderer().setFile(currentFile);
+		URL currentURL=null;
+		try {
+			currentURL = new URL(dataModel.getCode(),location+".dbf");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		dataModel.colorSections(map, currentURL);
+		this.setURL(currentURL);
 		dataModel.setCurrentMapAbbr(abr);
 		if(abr!="USA")
 			dataModel.setMapRendered(false);
@@ -535,11 +539,11 @@ public class ElectionMapRenderer extends Renderer
 		//fill the rectangle
 		g.fillRect(height+237, width-687, 289, 149);*/
 		g.setColor(Color.black);
-		g.drawRect(height+236, width-842, 290, 150);
+		g.drawRect(height-773, width-950, 150, 420);
 		//set the color to fill
 		g.setColor(new Color(248,248,255));
 		//fill the rectangle
-		g.fillRect(height+237, width-841, 289, 149);
+		g.fillRect(height-773, width-950, 149, 420);
 		//g.drawString(result ,1002, 401);
 	}
 	/**

@@ -1,6 +1,7 @@
 package election_map_applet;
 
 import java.io.File;
+import java.net.URL;
 
 import javax.swing.JApplet;
 
@@ -32,7 +33,7 @@ public class ElectionAppletStart extends JApplet{
 				catch(InterruptedException ie) { ie.printStackTrace(); }
 			}
 			render.repaint();
-			render.setFile(new File(ElectionMapFileManager.USA_DBF));
+			render.setURL(new URL(this.getCodeBase(),ElectionMapFileManager.USA_DBF));
 			}
 		catch(Exception e){
 			e.printStackTrace();

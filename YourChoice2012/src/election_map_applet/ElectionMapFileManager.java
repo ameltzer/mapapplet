@@ -78,18 +78,34 @@ public class ElectionMapFileManager
 		MediaTracker tracker = new MediaTracker(view);
 		try
 		{
-			URL url = new URL(this.code, FLAGS_DIR);
-			File flagsDir = new File(url.getPath());
-			File[] flags = flagsDir.listFiles();
+			String[] stateAbbr = {"AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","HI","IA",
+                    "ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS",
+                    "MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA",
+                    "RI","SC","SD","TN","TX","USA","UT","VA","VT","WA","WI","WV","WY"};
+			File[] flags= new File[stateAbbr.length * 2];
+			URL[] URLFlags = new URL[flags.length];
+			int j=0;
+			for(int i=0; i<flags.length; i++){
+				if(i%2==0){
+					URLFlags[i] = new URL(this.code, FLAGS_DIR+stateAbbr[j]+".png");
+					flags[i] = new File(URLFlags[i].getPath());
+				}
+				else{
+					URLFlags[i] = new URL(this.code, FLAGS_DIR+stateAbbr[j]+".gif");
+					flags[i] = new File(URLFlags[i].getPath());
+					j++;
+				}
+			}
 			// GO THROUGH ALL THE CONTENTS OF THE flags DIRECTORY
 			for (int i = 0; i < flags.length; i++)
 			{	
 				// GET AND LOAD THE FLAG
 				File flagFile = flags[i];
+				URL flagURL = URLFlags[i];
 				String name = flagFile.getName();
 				int dotIndex = name.indexOf('.');
 				String abbr = name.substring(0, dotIndex);
-				Image flag = ImageIO.read(flagFile);
+				Image flag = this.theApplet.getImage(flagURL);
 				dataModel.addFlag(name, abbr, flag);				
 				tracker.addImage(flag, i);
 			}
@@ -150,11 +166,13 @@ public class ElectionMapFileManager
 		try
 		{
 			// LOAD THE USA MAP FILE
-			File shpFile = new File(USA_SHP);
+			URL shpFileURL = new URL(this.code, USA_SHP);
 			//load the SHPMap
-			SHPMap usaSHP = shpLoader.loadShapefile(shpFile);
+			System.err.print(shpFileURL);
+			SHPMap usaSHP = shpLoader.loadShapefile(shpFileURL);
 			// INITIALIZE THE COLORS
-			dataModel.colorSections(usaSHP, new File(USA_DBF));
+			URL dbfFileURL = new URL(this.code, USA_DBF);
+			dataModel.colorSections(usaSHP, dbfFileURL);
 			// AND UPDATE THE GUI
 			dataModel.initUSAMap(usaSHP);
 		}
@@ -165,6 +183,7 @@ public class ElectionMapFileManager
 											"Error loading USA map ", 
 											"Error loading USA map", 
 											JOptionPane.ERROR_MESSAGE);
+			ioe.printStackTrace();
 		}
 	}
 	/**
